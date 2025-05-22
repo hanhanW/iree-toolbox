@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
 // Author: hanhanW
 
+#include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <iostream>
+#include <optional>
 #include <queue>
 #include <sstream>
-#include <algorithm>
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
@@ -55,7 +56,7 @@ int getColor(string str, string target) {
   return deviceToColor[device];
 }
 
-void dumpPath(int dest) {
+void dumpPath(int dest, std::optional<int> lastNode = std::nullopt) {
   std::vector<int> path;
   int u = dest;
   path.push_back(u);
@@ -64,10 +65,14 @@ void dumpPath(int dest) {
     path.push_back(u);
   }
   std::reverse(path.begin(), path.end());
-  for (auto i : path) {
-    std::cout << idxToStr[i] << " -> ";
+  for (int i = 0, e = path.size(); i < e - 1; ++i) {
+    std::cout << idxToStr[path[i]] << " -> ";
   }
-  std::cout << "\n";
+  std::cout << idxToStr[path.back()];
+  if (lastNode) {
+    std::cout << " -> " << idxToStr[lastNode.value()];
+  }
+  std::cout << std::endl;
 }
 
 void parseNode(string input, int i) {
@@ -221,23 +226,23 @@ int main(int argc, char* argv[]) {
 
         if (requirement[v] != kUnknown && requirement[v] != color[u]) {
           std::cout << "does not meet the requirement\n";
-          std::cout << "u: " << idxToStr[u] << "fromInit "
+          std::cout << "u: " << idxToStr[u] << " fromInit "
                     << idxToStr[fromInit[u]] << "\n";
-          std::cout << "v: " << idxToStr[v] << "fromInit "
+          std::cout << "v: " << idxToStr[v] << " fromInit "
                     << idxToStr[fromInit[v]] << "\n";
           dumpPath(u);
           dumpPath(v);
-          assert(false);
+          return 1;
         }
       } else if (!isInit[v] && color[v] != color[u]) {
-        std::cout << "Mismatch color!\n";
-        std::cout << "u: " << idxToStr[u] << "fromInit "
-                  << idxToStr[fromInit[u]] << "\n";
-        std::cout << "v: " << idxToStr[v] << "fromInit "
-                  << idxToStr[fromInit[v]] << "\n";
-        dumpPath(u);
+        std::cout << "Mismatch color @ " << idxToStr[v] << "!\n";
+        std::cout << "Node " << idxToStr[u] << " has color " << color[u]
+                  << std::endl;
+        std::cout << "Node " << idxToStr[v] << " already has color " << color[v]
+                  << std::endl;
+        dumpPath(u, v);
         dumpPath(v);
-        assert(false);
+        return 1;
       }
     }
   }
