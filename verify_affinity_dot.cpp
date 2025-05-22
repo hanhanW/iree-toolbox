@@ -16,7 +16,7 @@
 
 using namespace std;
 
-constexpr int MAXN = 1024;
+constexpr int MAXN = 1048576;
 constexpr int kUnknown = -1;
 
 int N, M, nColor;
@@ -76,6 +76,9 @@ void dumpPath(int dest, std::optional<int> lastNode = std::nullopt) {
 }
 
 void parseNode(string input, int i) {
+  assert(i < MAXN &&
+         "hit the limitation of the number of nodes, please consider increase "
+         "MAXN value");
   stringstream ss;
   ss << input;
   string str;
